@@ -19,6 +19,31 @@ El proyecto busca facilitar la **convocatoria y registro de ciudadanos que se po
 
 Contiene la **Prueba de Concepto (prototipo funcional)** de la segunda entrega, que demuestra de punta a punta la consulta de charlas, la visualización de la sede en el mapa mediante el consumo de la API de USIG, y el registro de una postulación.
 
+## Cómo ejecutarlo
+
+**Requisitos:** Node.js **20.19+ o 22.12+** y npm (viene con Node). No requiere claves ni credenciales.
+
+1. Instalar las dependencias (un solo comando, desde `package.json`):
+
+   ```bash
+   npm install
+   ```
+
+2. Iniciar el entorno de desarrollo:
+
+   ```bash
+   npm run dev
+   ```
+
+   Vite imprime la URL local en la consola (por defecto `http://localhost:5173`).
+
+Para generar la versión de producción y previsualizarla:
+
+```bash
+npm run build
+npm run preview
+```
+
 ## Stack tecnológico
 
 - **React** (v19) como librería de UI, con componentes para las distintas vistas del portal.
