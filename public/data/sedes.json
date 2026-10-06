@@ -1,0 +1,7 @@
+[
+  { "id": 1, "nombre": "Escuela N.º 1 Bernardino Rivadavia", "direccion": "Bartolomé Mitre 1249, CABA" },
+  { "id": 2, "nombre": "Escuela N.º 7 Manuel Belgrano", "direccion": "Av. Rivadavia 1573, CABA" },
+  { "id": 3, "nombre": "Colegio Nacional de Buenos Aires", "direccion": "Bolívar 263, CABA" },
+  { "id": 4, "nombre": "Escuela Normal Superior N.º 2", "direccion": "Av. Córdoba 1951, CABA" },
+  { "id": 5, "nombre": "Centro Cultural General San Martín", "direccion": "Sarmiento 1551, CABA" }
+]
