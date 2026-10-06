@@ -34,12 +34,15 @@ export function MapaSedePage({ obtenerUbicacion, listarSedes }) {
   return (
     <main className="pagina">
       <header className="pagina__encabezado">
+        <span className="rotulo">Prueba de concepto</span>
         <h1>Ubicación de sedes</h1>
-        <p>Consultá en qué punto del mapa se encuentra cada sede de capacitación.</p>
+        <p>
+          Consultá la ubicación de cada sede de capacitación.
+        </p>
       </header>
 
       <div className="selector">
-        <label className="selector__label" htmlFor="selector-sede">
+        <label className="rotulo" htmlFor="selector-sede">
           Sede
         </label>
         <select

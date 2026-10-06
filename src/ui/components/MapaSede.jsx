@@ -61,32 +61,30 @@ export function MapaSede({ sede, obtenerUbicacion }) {
 
   if (estado === 'idle') {
     return (
-      <div className="mapa-sede mapa-sede--placeholder" role="status">
-        <p>Elegí una sede para ver su ubicación en el mapa.</p>
+      <div className="estado" role="status">
+        <span className="rotulo">Sin sede seleccionada</span>
+        <p className="estado__texto">Elegí una sede para consultar su ubicación.</p>
       </div>
     )
   }
 
   if (estado === 'loading') {
     return (
-      <div
-        className="mapa-sede mapa-sede--placeholder"
-        role="status"
-        aria-live="polite"
-      >
-        <span className="mapa-sede__spinner" aria-hidden="true" />
-        <p>Buscando la ubicación de la sede…</p>
+      <div className="estado" role="status" aria-live="polite">
+        <span className="rotulo">Verificando dirección…</span>
+        <span className="barra-progreso" aria-hidden="true" />
       </div>
     )
   }
 
   if (estado === 'error') {
     return (
-      <div className="mapa-sede mapa-sede--error" role="alert">
-        <p className="mapa-sede__error-text">{mensajeError}</p>
+      <div className="estado estado--error" role="alert">
+        <span className="rotulo">No se pudo verificar</span>
+        <p className="estado__texto">{mensajeError}</p>
         <button
           type="button"
-          className="boton boton--secundario"
+          className="boton"
           onClick={() => setIntento((n) => n + 1)}
         >
           Reintentar
@@ -96,32 +94,54 @@ export function MapaSede({ sede, obtenerUbicacion }) {
   }
 
   return (
-    <div className="mapa-sede">
-      <div className="mapa-sede__mapa">
-        <MapContainer
-          key={`${ubicacion.lat},${ubicacion.lng}`}
-          center={[ubicacion.lat, ubicacion.lng]}
-          zoom={16}
-          scrollWheelZoom={false}
-          style={{ height: '100%', width: '100%' }}
-        >
-          <TileLayer
-            attribution='&copy; colaboradores de <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={[ubicacion.lat, ubicacion.lng]}>
-            <Popup>{sede.nombre}</Popup>
-          </Marker>
-        </MapContainer>
-      </div>
-
-      <figure className="ficha-sede">
-        <figcaption className="ficha-sede__titulo">{sede.nombre}</figcaption>
-        <p className="ficha-sede__direccion">{ubicacion.direccionNormalizada}</p>
-        <p className="ficha-sede__coords">
-          {ubicacion.lat.toFixed(6)}, {ubicacion.lng.toFixed(6)}
-        </p>
+    <div className="resultado">
+      <figure className="documento">
+        <figcaption className="rotulo documento__rotulo">
+          Ubicación de la sede
+        </figcaption>
+        <div className="mapa">
+          <MapContainer
+            key={`${ubicacion.lat},${ubicacion.lng}`}
+            center={[ubicacion.lat, ubicacion.lng]}
+            zoom={16}
+            scrollWheelZoom={false}
+            style={{ height: '100%', width: '100%' }}
+          >
+            <TileLayer
+              attribution='&copy; colaboradores de <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[ubicacion.lat, ubicacion.lng]}>
+              <Popup>{sede.nombre}</Popup>
+            </Marker>
+          </MapContainer>
+        </div>
       </figure>
+
+      <section className="datos-sede">
+        <h2 className="datos-sede__rotulo">Datos de la sede</h2>
+        <dl className="campos">
+          <div className="campo">
+            <dt className="rotulo">Sede</dt>
+            <dd>{sede.nombre}</dd>
+          </div>
+          <div className="campo">
+            <dt className="rotulo">Dirección normalizada</dt>
+            <dd>{ubicacion.direccionNormalizada}</dd>
+          </div>
+          <div className="campo">
+            <dt className="rotulo">Coordenadas</dt>
+            <dd className="mono">
+              {ubicacion.lat.toFixed(6)}, {ubicacion.lng.toFixed(6)}
+            </dd>
+          </div>
+        </dl>
+        <div className="sello" aria-hidden="true">
+          <span className="sello__linea sello__linea--chica">Ubicación</span>
+          <span className="sello__linea sello__linea--grande">Verificada</span>
+          <span className="sello__linea sello__linea--chica">· USIG ·</span>
+        </div>
+      </section>
     </div>
   )
 }
