@@ -1,4 +1,10 @@
-import ConsultaCharlas from "./ui/ConsultarCharlas";
+import { useState } from "react";
+import MenuPersona from './ui/pages/menuPersonaForm';
+import MenuAdministrador from './ui/pages/menuAdministradorForm';
+import SolicitudForm from './ui/pages/SolicitudForm';
+import SolicitudesLista from './ui/pages/SolicitudesLista';
+import { validarPermisosAdministrador } from './domain/model/menuAdministrador';
+import ConsultaCharlas from "./ui/pages/ConsultarCharlas.jsx";
 import { MapaSedePage } from "./ui/pages/MapaSedePage.jsx";
 import { useTema } from "./ui/hooks/useTema.js";
 import "./App.css";
@@ -38,6 +44,70 @@ function IconoSol() {
 function App({ obtenerUbicacion, listarSedes }) {
   const { tema, alternarTema } = useTema();
   const esOscuro = tema === "oscuro";
+  const [sedeSolicitada, setSedeSolicitada] = useState("");
+  const [vistaActual, setVistaActual] = useState("inicio");
+  const [usuarioActual, setUsuarioActual] = useState(null);
+
+  function seleccionarRol(rol) {
+  if (rol === "admin") {
+    const administrador = {
+      rol: "admin",
+      nombre: "Administrador",
+    };
+
+    if (validarPermisosAdministrador(administrador)) {
+      setUsuarioActual(administrador);
+      setVistaActual("menuAdministrador");
+    }
+  } else {
+    const postulante = {
+      rol: "usuario",
+      nombre: "Postulante",
+    };
+
+    setUsuarioActual(postulante);
+    setVistaActual("menuPersona");
+  }
+}
+
+function seleccionarOpcionPersona(opcionId) {
+  if (opcionId === "inscripcion") {
+    setVistaActual("formularioInscripcion");
+  }
+
+  if (opcionId === "charlas") {
+    setVistaActual("consultaCharlas");
+  }
+
+}
+
+function seleccionarOpcionAdministrador(opcionId) {
+  if (opcionId === "ver_solicitudes") {
+    setVistaActual("listaSolicitudes");
+  }
+}
+function volverAlInicio() {
+  setVistaActual("inicio");
+  setUsuarioActual(null);
+}
+
+function volverAlMenuPersona() {
+  setVistaActual("menuPersona");
+}
+
+function volverAlMenuAdministrador() {
+  setVistaActual("menuAdministrador");
+}
+
+function mostrarUbicacion(nombreSede) {
+  setSedeSolicitada(nombreSede);
+  document
+  .getElementById("seccion-mapa")
+  ?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+  }
 
   return (
     <div className="app">
@@ -77,15 +147,109 @@ function App({ obtenerUbicacion, listarSedes }) {
       </header>
 
       <div className="encabezado__filete" aria-hidden="true" />
+      {vistaActual === "inicio" && (
+  <main
+    style={{
+      padding: "20px",
+      textAlign: "center",
+      marginTop: "50px",
+    }}
+  >
+    <h2>Bienvenido</h2>
 
-      <ConsultaCharlas />
+    <p>Seleccioná con qué perfil deseás ingresar:</p>
 
-      <MapaSedePage
-        obtenerUbicacion={obtenerUbicacion}
-        listarSedes={listarSedes}
-      />
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: "15px",
+        marginTop: "20px",
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => seleccionarRol("usuario")}
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#28a745",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+          fontSize: "16px",
+        }}
+      >
+        Ingresar como Postulante
+      </button>
+
+      <button
+        type="button"
+        onClick={() => seleccionarRol("admin")}
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#007bff",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+          fontSize: "16px",
+        }}
+      >
+        Ingresar como Administrador
+      </button>
+    </div>
+  </main>
+)}
+
+      {vistaActual === "menuPersona" && (
+  <MenuPersona
+    onSelectOption={seleccionarOpcionPersona}
+    onVolver={volverAlInicio}
+  />
+)}
+
+{vistaActual === "menuAdministrador" && (
+  <MenuAdministrador
+    onSelectOption={seleccionarOpcionAdministrador}
+    onVolver={volverAlInicio}
+  />
+)}
+
+{vistaActual === "listaSolicitudes" && (
+  <SolicitudesLista onVolver={volverAlMenuAdministrador} />
+)}
+
+{vistaActual === "formularioInscripcion" && (
+  <SolicitudForm onVolver={volverAlMenuPersona} />
+)}
+
+{vistaActual === "consultaCharlas" && (
+  <>
+    <button
+      type="button"
+      onClick={volverAlMenuPersona}
+      style={{
+        margin: "20px",
+        padding: "8px 16px",
+        cursor: "pointer",
+      }}
+    >
+      Volver al menú
+    </button>
+
+    <ConsultaCharlas alVerUbicacion={mostrarUbicacion} />
+
+    <MapaSedePage
+      obtenerUbicacion={obtenerUbicacion}
+      listarSedes={listarSedes}
+      sedeSolicitada={sedeSolicitada}
+    />
+  </>
+)}
     </div>
   );
 }
 
 export default App;
+

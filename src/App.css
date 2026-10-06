@@ -66,3 +66,62 @@
   border-color: var(--color-ink);
   background: var(--color-paper);
 }
+
+.consulta-charlas {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.consulta-charlas h1 {
+  margin: 0 0 32px;
+  font-size: 2rem;
+}
+
+.lista-charlas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.tarjeta-charla {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  border: 1px solid #555;
+  border-radius: 12px;
+  background-color: var(--color-superficie, #24231f);
+}
+
+.tarjeta-charla h2 {
+  margin: 0 0 8px;
+  font-size: 1.25rem;
+}
+
+.tarjeta-charla p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tarjeta-charla button {
+  width: auto;
+  min-width: 140px;
+  min-height: 40px;
+  margin-top: 16px;
+  padding: 10px 16px;
+
+  background-color: #7c3aed;
+  color: #ffffff;
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tarjeta-charla button:hover {
+  background-color: #6d28d9;
+}

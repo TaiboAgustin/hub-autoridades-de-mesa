@@ -2,7 +2,15 @@ import { useEffect, useState } from 'react'
 import { MapaSede } from '../components/MapaSede.jsx'
 import '../styles/mapa-sede.css'
 
-export function MapaSedePage({ obtenerUbicacion, listarSedes }) {
+function normalizarTexto(texto = "") {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+export function MapaSedePage({ obtenerUbicacion, listarSedes, sedeSolicitada, }) {
   const [sedes, setSedes] = useState([])
   const [sedeSeleccionada, setSedeSeleccionada] = useState(null)
   const [cargandoSedes, setCargandoSedes] = useState(true)
@@ -26,13 +34,31 @@ export function MapaSedePage({ obtenerUbicacion, listarSedes }) {
     }
   }, [listarSedes])
 
+    useEffect(() => {
+    if (!sedeSolicitada || sedes.length === 0) return
+
+    const nombreSolicitado = normalizarTexto(sedeSolicitada)
+
+    const sedeEncontrada = sedes.find((sede) => {
+      const nombreSede = normalizarTexto(sede.nombre)
+
+      return (
+        nombreSede === nombreSolicitado ||
+        nombreSede.includes(nombreSolicitado) ||
+        nombreSolicitado.includes(nombreSede)
+      )
+    })
+
+    setSedeSeleccionada(sedeEncontrada ?? null)
+  }, [sedeSolicitada, sedes])
+
   function alElegirSede(evento) {
     const id = Number(evento.target.value)
     setSedeSeleccionada(sedes.find((s) => s.id === id) ?? null)
   }
 
   return (
-    <main className="pagina">
+    <main id="seccion-mapa" className="pagina">
       <header className="pagina__encabezado">
         <span className="rotulo">Prueba de concepto</span>
         <h1>Ubicación de sedes</h1>
@@ -49,7 +75,7 @@ export function MapaSedePage({ obtenerUbicacion, listarSedes }) {
           id="selector-sede"
           className="selector__control"
           onChange={alElegirSede}
-          defaultValue=""
+          value={sedeSeleccionada?.id ?? ""}
           disabled={cargandoSedes}
         >
           <option value="" disabled>
