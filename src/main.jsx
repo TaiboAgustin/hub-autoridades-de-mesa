@@ -5,6 +5,9 @@ import App from './App.jsx'
 import { crearUsigGeocoder } from './infrastructure/adapters/usig/usigGeocoder.js'
 import { crearSedesRepo } from './infrastructure/adapters/persistence/sedesRepo.js'
 import { crearObtenerUbicacionDeSede } from './application/usecases/obtenerUbicacionDeSede.js'
+import { temaInicial, aplicarTema } from './ui/hooks/useTema.js'
+
+aplicarTema(temaInicial())
 
 const geocoder = crearUsigGeocoder()
 const sedesRepo = crearSedesRepo()
