@@ -47,7 +47,6 @@ function App({ obtenerUbicacion, listarSedes }) {
   const esOscuro = tema === "oscuro";
   const [sedeSolicitada, setSedeSolicitada] = useState("");
   const [vistaActual, setVistaActual] = useState("inicio");
-  const [usuarioActual, setUsuarioActual] = useState(null);
 
   function seleccionarRol(rol) {
   if (rol === "admin") {
@@ -57,16 +56,9 @@ function App({ obtenerUbicacion, listarSedes }) {
     };
 
     if (validarPermisosAdministrador(administrador)) {
-      setUsuarioActual(administrador);
       setVistaActual("menuAdministrador");
     }
   } else {
-    const postulante = {
-      rol: "usuario",
-      nombre: "Postulante",
-    };
-
-    setUsuarioActual(postulante);
     setVistaActual("menuPersona");
   }
 }
@@ -89,7 +81,6 @@ function seleccionarOpcionAdministrador(opcionId) {
 }
 function volverAlInicio() {
   setVistaActual("inicio");
-  setUsuarioActual(null);
 }
 
 function volverAlMenuPersona() {
