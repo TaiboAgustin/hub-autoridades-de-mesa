@@ -17,7 +17,46 @@ El proyecto busca facilitar la **convocatoria y registro de ciudadanos que se po
 
 ## Este repositorio
 
-Contiene la **Prueba de Concepto (prototipo funcional)** de la segunda entrega, que demuestra de punta a punta la consulta de charlas, la visualización de la sede en el mapa mediante el consumo de la API de USIG, y el registro de una postulación.
+Contiene la **Prueba de Concepto (prototipo funcional)** de la segunda entrega. Desde una pantalla de inicio se elige el perfil de ingreso:
+
+- el **usuario** puede **inscribirse como postulante** (formulario con validación de datos y persistencia) y **consultar las charlas** de capacitación, visualizando la **ubicación de cada sede en el mapa** mediante el consumo en vivo de la **API de USIG**;
+- el **administrador** accede a un panel que **lista las postulaciones** registradas.
+
+## Capturas del prototipo
+
+Recorrido del flujo completo, de punta a punta:
+
+### 1. Inicio — selección de perfil
+
+![Inicio: selección de perfil](capturas/01-inicio.png)
+
+### 2. Menú de usuario
+
+![Menú de usuario](capturas/02-menu-usuario.png)
+
+### 3. Inscripción de postulante
+
+![Formulario de inscripción](capturas/03-inscripcion.png)
+
+### 4. Confirmación de la inscripción
+
+![Confirmación de la inscripción](capturas/04-inscripcion-confirmacion.png)
+
+### 5. Consulta de charlas
+
+![Listado de charlas](capturas/05-charlas.png)
+
+### 6. Ubicación de la sede en el mapa (USIG)
+
+![Mapa de la sede geocodificada con USIG](capturas/06-mapa.png)
+
+### 7. Panel de administrador — listado de postulaciones
+
+![Panel de administrador](capturas/07-admin-listado.png)
+
+### 8. Modo oscuro
+
+![Modo oscuro](capturas/08-admin-oscuro.png)
 
 ## Cómo ejecutarlo
 
@@ -51,6 +90,7 @@ npm run preview
 - **Leaflet** + **react-leaflet** para renderizar el mapa interactivo sobre mosaicos de **OpenStreetMap** (gratuito y sin credenciales).
 - **API de USIG** (servicio externo de normalización de direcciones) para obtener dinámicamente las coordenadas de una sede a partir de su dirección.
 - **JavaScript (ES Modules)** como lenguaje.
+- **Navegación por perfiles** (usuario / administrador) resuelta con vistas por estado en React, sin dependencias de routing.
 - **Persistencia**: almacenamiento del navegador (`localStorage`) para las postulaciones, con las charlas y sedes precargadas; no requiere servidor ni claves para ejecutarse.
 
 ## Arquitectura
@@ -60,19 +100,22 @@ El proyecto sigue una **arquitectura hexagonal (puertos y adaptadores)**: el dom
 ```
 src/
 ├── domain/                        → NÚCLEO: dominio puro, sin dependencias externas
-│   ├── model/                     → entidades (Charla, Sede, Solicitud, Postulación)
-│   └── services/                  → reglas de negocio
+│   ├── model/                     → entidades y datos de dominio (Charla, Sede, Ubicacion,
+│   │                                Postulacion, Solicitud, Persona, DistritoElectoral, menús)
+│   └── services/                  → reglas de negocio (validación de la postulación)
 ├── application/                   → orquestación
-│   ├── usecases/                  → casos de uso
-│   └── ports/                     → PUERTOS (contratos que el núcleo pide al exterior)
+│   ├── usecases/                  → casos de uso (consultar charlas, ubicar sede, registrar postulación)
+│   └── ports/                     → PUERTOS (contrato de geocodificación)
 ├── infrastructure/
 │   └── adapters/                  → ADAPTADORES "driven" (implementan los puertos)
 │       ├── usig/                  → adaptador del servicio externo USIG
-│       └── persistence/           → adaptador localStorage/JSON
+│       └── persistence/           → adaptadores localStorage / datos precargados
 └── ui/                            → ADAPTADOR "driving" (React)
-    ├── components/
-    ├── pages/
-    └── styles/
+    ├── components/                → componentes reutilizables (MapaSede, Campo, RadioSiNo)
+    ├── pages/                     → vistas (inicio, menús, inscripción, charlas, mapa, admin)
+    ├── hooks/                     → useTema (modo claro/oscuro)
+    ├── utils/                     → utilidades de UI (máscaras de formato)
+    └── styles/                    → estilos (tokens y hojas por vista)
 ```
 
 El punto de entrada (`src/main.jsx`) actúa como *composition root*: instancia los adaptadores concretos y los inyecta en los casos de uso.
