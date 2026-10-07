@@ -58,7 +58,7 @@ export function MapaSedePage({ obtenerUbicacion, listarSedes, sedeSolicitada, })
   }
 
   return (
-    <main id="seccion-mapa" className="pagina">
+    <main id="seccion-mapa" className="pagina pagina--ancha">
       <header className="pagina__encabezado">
         <span className="rotulo">Prueba de concepto</span>
         <h1>Ubicación de sedes</h1>

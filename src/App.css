@@ -89,9 +89,9 @@
   flex-direction: column;
   gap: 10px;
   padding: 24px;
-  border: 1px solid #555;
-  border-radius: 12px;
-  background-color: var(--color-superficie, #24231f);
+  border: 1.5px solid var(--color-ink);
+  border-radius: var(--radio);
+  background-color: var(--color-surface);
 }
 
 .tarjeta-charla h2 {
@@ -111,17 +111,21 @@
   margin-top: 16px;
   padding: 10px 16px;
 
-  background-color: #7c3aed;
-  color: #ffffff;
+  background-color: var(--color-violet);
+  color: var(--color-on-violet);
 
-  border: none;
-  border-radius: 8px;
+  border: 1.5px solid var(--color-violet);
+  border-radius: var(--radio);
 
+  font-family: var(--font-display);
   font-size: 14px;
   font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
 .tarjeta-charla button:hover {
-  background-color: #6d28d9;
+  background-color: var(--color-violet-strong);
+  border-color: var(--color-violet-strong);
 }

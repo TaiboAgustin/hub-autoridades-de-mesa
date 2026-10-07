@@ -1,4 +1,4 @@
-import { consultarCharlas } from "../../application/Usecases/consultarCharlas";
+import { consultarCharlas } from "../../application/usecases/consultarCharlas";
 
 function ConsultaCharlas({ alVerUbicacion })  {
   const charlas = consultarCharlas();

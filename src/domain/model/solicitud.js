@@ -65,8 +65,8 @@ export function guardarInscripcion(formData) {
     const nuevaSolicitud = new Solicitud(
       Date.now(),
       formData.distrito,
-      formData.autoridadPrevia === 'Sí', 
-      formData.capacitacionCumplida === 'Sí',
+      formData.autoridadPrevia === 'Sí',
+      formData.capacitacion === 'Sí',
       formData.afiliacion === 'Sí',
       formData.partidoAgrupacion || '',
       formData.interesCharla === 'Sí',

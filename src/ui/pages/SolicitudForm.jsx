@@ -1,334 +1,353 @@
 import { useState } from 'react';
-import { validarInscripcion, guardarInscripcion } from '../../domain/model/solicitud';
+import { Campo } from '../components/Campo.jsx';
+import { RadioSiNo } from '../components/RadioSiNo.jsx';
+import {
+  soloLetras,
+  soloDigitos,
+  formatearDni,
+  formatearTelefono,
+  sugerenciasCorreo,
+} from '../utils/formato.js';
+import { consultarCharlas } from '../../application/usecases/consultarCharlas';
 import { DistritoElectoral } from '../../domain/model/distritoElectoral';
+import { crearPostulacionesRepo } from '../../infrastructure/adapters/persistence/postulacionesRepo';
+import { crearRegistrarPostulacion } from '../../application/usecases/registrarPostulacion';
+import { botonFantasma } from '../estilos';
+import '../styles/postulacion.css';
+
+const registrarPostulacion = crearRegistrarPostulacion(crearPostulacionesRepo());
+
+const DATOS_INICIALES = {
+  distrito: '',
+  nombre: '',
+  apellido: '',
+  dni: '',
+  fechaNacimiento: '',
+  direccion: '',
+  telefono: '',
+  correo: '',
+  fueAutoridad: false,
+  cumplioCapacitacion: false,
+  afiliado: false,
+  partido: '',
+  interesaCharlas: false,
+  charlasInteres: [],
+};
+
+const ORDEN_CAMPOS = [
+  'distrito',
+  'nombre',
+  'apellido',
+  'dni',
+  'fechaNacimiento',
+  'direccion',
+  'telefono',
+  'correo',
+  'partido',
+];
 
 function InscripcionForm({ onVolver, onVolverInicio }) {
-  const [formData, setFormData] = useState({
-    distrito: '',
-    nombre: '',
-    apellido: '',
-    dni: '',
-    fechaNacimiento: '',
-    direccion: '',
-    telefono: '',
-    mail: '',
-    autoridadMesaPrevia: '',
-    capacitacionCumplida: '',
-    afiliacion: '',
-    partidoAgrupacion: '',
-    interesCharla: ''
-  });
+  const distritos = DistritoElectoral.obtenerTodos();
+  const charlas = consultarCharlas();
+  const [datos, setDatos] = useState(DATOS_INICIALES);
+  const [errores, setErrores] = useState({});
+  const [enviada, setEnviada] = useState(false);
 
-  const [error, setError] = useState('');
-  
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
+  function actualizar(campo, valor) {
+    setDatos((prev) => ({ ...prev, [campo]: valor }));
+  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  function alternarCharla(id) {
+    setDatos((prev) => ({
+      ...prev,
+      charlasInteres: prev.charlasInteres.includes(id)
+        ? prev.charlasInteres.filter((x) => x !== id)
+        : [...prev.charlasInteres, id],
+    }));
+  }
 
-    const mensajeError = validarInscripcion(formData);
-    
-    if (mensajeError) {
-      setError(mensajeError);
+  function cambiarInteres(valor) {
+    setDatos((prev) => ({
+      ...prev,
+      interesaCharlas: valor,
+      charlasInteres: valor ? prev.charlasInteres : [],
+    }));
+  }
+
+  function enviar(evento) {
+    evento.preventDefault();
+    const resultado = registrarPostulacion(datos);
+    if (resultado.ok) {
+      setErrores({});
+      setEnviada(true);
       return;
     }
+    setErrores(resultado.errores);
+    const primerError = ORDEN_CAMPOS.find((campo) => resultado.errores[campo]);
+    if (primerError) {
+      requestAnimationFrame(() => document.getElementById(primerError)?.focus());
+    }
+  }
 
-    setError('');
-    guardarInscripcion(formData);
-    
-    alert('¡Inscripción guardada con éxito!');
-    
-    setFormData({
-      distrito: '',
-      nombre: '',
-      apellido: '',
-      dni: '',
-      fechaNacimiento: '',
-      direccion: '',
-      telefono: '',
-      mail: '',
-      autoridadPrevia: '',
-      capacitacion: '',
-      afiliacion: '',
-      partidoAgrupacion: '',
-      interesCharla: ''
-    });
-  };
+  function cargarOtra() {
+    setDatos(DATOS_INICIALES);
+    setErrores({});
+    setEnviada(false);
+  }
 
-  return (
-    <div style={{ maxWidth: '650px', width: '100%', margin: '0 auto', padding: '10px 20px', fontFamily: 'Arial, sans-serif' }}>
-      <h2 style={{ marginTop: '-10px', marginBottom: '20px', textAlign: 'center' }}>Inscripción de Postulante</h2>
-      {error && (
-        <div style={{ backgroundColor: '#ffe6e6', color: '#d9534f', padding: '10px', marginBottom: '15px', borderRadius: '4px', border: '1px solid #ebccd1' }}>
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '170px 1fr', gap: '12px 15px', alignItems: 'center' }}>    
-          <label style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>Distrito Electoral:</label>
-          <select
-            name="distrito"
-            value={formData.distrito}
-            onChange={handleChange}
-            required
-            style={{ padding: '7px', boxSizing: 'border-box', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-          >
-            <option value="">Seleccione un distrito...</option>
-            {DistritoElectoral.obtenerTodos().map((distrito) => (
-              <option key={distrito.id} value={distrito.nombre}>
-                {distrito.nombre}
-              </option>
-            ))}
-          </select>
-
-          <label style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>Nombre:</label>
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            required
-            style={{ padding: '7px', boxSizing: 'border-box', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-
-          <label style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>Apellido:</label>
-          <input
-            type="text"
-            name="apellido"
-            value={formData.apellido}
-            onChange={handleChange}
-            required
-            style={{ padding: '7px', boxSizing: 'border-box', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-
-          <label style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>DNI:</label>
-          <input
-            type="text"
-            name="dni"
-            value={formData.dni}
-            onChange={handleChange}
-            required
-            style={{ padding: '7px', boxSizing: 'border-box', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-
-          <label style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>Fecha de Nacimiento:</label>
-          <input
-            type="date"
-            name="fechaNacimiento"
-            value={formData.fechaNacimiento}
-            onChange={handleChange}
-            required
-            style={{ padding: '7px', boxSizing: 'border-box', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-
-          <label style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>Dirección Actual:</label>
-          <input
-            type="text"
-            name="direccion"
-            value={formData.direccion}
-            onChange={handleChange}
-            required
-            style={{ padding: '7px', boxSizing: 'border-box', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-
-          <label style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>Teléfono:</label>
-          <input
-            type="tel"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleChange}
-            required
-            style={{ padding: '7px', boxSizing: 'border-box', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-
-          <label style={{ textAlign: 'left', whiteSpace: 'nowrap' }}>Correo Electrónico:</label>
-          <input
-            type="mail"
-            name="mail"
-            value={formData.mail}
-            onChange={handleChange}
-            required
-            style={{ padding: '7px', boxSizing: 'border-box', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px 15px', alignItems: 'center', marginTop: '5px' }}>
-          <label style={{ textAlign: 'left' }}>¿Fue autoridad de mesa previamente?</label>
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="autoridadPrevia"
-                value="Sí"
-                checked={formData.autoridadPrevia === 'Sí'}
-                onChange={handleChange}
-                required
-              /> Sí
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="autoridadPrevia"
-                value="No"
-                checked={formData.autoridadPrevia === 'No'}
-                onChange={handleChange}
-                required
-              /> No
-            </label>
-          </div>
-
-          <label style={{ textAlign: 'left' }}>¿Cumplió la capacitación?</label>
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="capacitacion"
-                value="Sí"
-                checked={formData.capacitacion === 'Sí'}
-                onChange={handleChange}
-                required
-              /> Sí
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="capacitacion"
-                value="No"
-                checked={formData.capacitacion === 'No'}
-                onChange={handleChange}
-                required
-              /> No
-            </label>
-          </div>
-
-          <label style={{ textAlign: 'left' }}>¿Es afiliado a alguna agrupación política?</label>
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="afiliacion"
-                value="Sí"
-                checked={formData.afiliacion === 'Sí'}
-                onChange={handleChange}
-                required
-              /> Sí
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="afiliacion"
-                value="No"
-                checked={formData.afiliacion === 'No'}
-                onChange={handleChange}
-                required
-              /> No
-            </label>
-          </div>
-
-          {formData.afiliacion === 'Sí' && (
-            <>
-              <label style={{ textAlign: 'left', paddingLeft: '15px' }}>Detallar Partido:</label>
-              <input
-                type="text"
-                name="partidoAgrupacion"
-                value={formData.partidoAgrupacion}
-                onChange={handleChange}
-                placeholder="Indique el partido"
-                required
-                style={{ padding: '7px', boxSizing: 'border-box', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-              />
-            </>
-          )}
-
-          <label style={{ textAlign: 'left' }}>¿Tiene interés en participar en charlas de orientación?</label>
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="interesCharla"
-                value="Sí"
-                checked={formData.interesCharla === 'Sí'}
-                onChange={handleChange}
-                required
-              /> Sí
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="interesCharla"
-                value="No"
-                checked={formData.interesCharla === 'No'}
-                onChange={handleChange}
-                required
-              /> No
-            </label>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginTop: '15px', flexWrap: 'wrap' }}>
-          <button 
-            type="submit" 
-            style={{ 
-              padding: '10px 20px', 
-              backgroundColor: '#007BFF', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '5px',
-              cursor: 'pointer', 
-              fontWeight: 'bold', 
-              width: '160px'
-            }}
-          >
-            Inscribirse
-          </button>
-
-          {onVolver && (
-            <button 
-              type="button"
-              onClick={onVolver}
-              style={{ 
-                padding: '10px 20px', 
-                backgroundColor: '#6c757d', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '5px',
-                cursor: 'pointer', 
-                fontWeight: 'bold', 
-                width: '160px'
-              }}
+  if (enviada) {
+    return (
+      <main className="pagina">
+        <div className="confirmacion" role="status">
+          <span className="confirmacion__icono" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              Menú anterior
+              <path d="m5 13 4 4L19 7" />
+            </svg>
+          </span>
+          <h1>Inscripción registrada</h1>
+          <p>
+            Tu postulación como autoridad de mesa quedó registrada. Vas a recibir
+            la confirmación en el correo que indicaste.
+          </p>
+          <button type="button" className="boton" onClick={cargarOtra}>
+            Cargar otra inscripción
+          </button>
+        </div>
+        <div className="acciones acciones--volver" style={{ display: 'flex', gap: '16px', marginTop: '32px' }}>
+          {onVolver && (
+            <button type="button" style={{ ...botonFantasma, padding: '11px 20px' }} onClick={onVolver}>
+              ← Volver al menú
             </button>
           )}
-
           {onVolverInicio && (
-            <button 
-              type="button"
-              onClick={onVolverInicio}
-              style={{ 
-                padding: '10px 20px', 
-                backgroundColor: '#343a40', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '5px',
-                cursor: 'pointer', 
-                fontWeight: 'bold', 
-                width: '160px'
-              }}
+            <button type="button" style={{ ...botonFantasma, padding: '11px 20px' }} onClick={onVolverInicio}>
+              Volver al inicio
+            </button>
+          )}
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="pagina">
+      <header className="pagina__encabezado">
+        <span className="rotulo">Prueba de concepto</span>
+        <h1>Inscripción de postulante</h1>
+        <p>Completá tus datos para registrarte como autoridad de mesa.</p>
+      </header>
+
+      <form className="formulario" onSubmit={enviar} noValidate>
+        <fieldset className="formulario__grupo">
+          <legend className="rotulo formulario__leyenda">Datos personales</legend>
+          <div className="formulario__grilla">
+            <Campo id="distrito" etiqueta="Distrito electoral" error={errores.distrito} ancho>
+              <select
+                id="distrito"
+                className="control"
+                value={datos.distrito}
+                onChange={(e) => actualizar('distrito', e.target.value)}
+                aria-invalid={errores.distrito ? true : undefined}
+                aria-describedby={errores.distrito ? 'distrito-error' : undefined}
+              >
+                <option value="">Elegí un distrito</option>
+                {distritos.map((distrito) => (
+                  <option key={distrito.id} value={distrito.nombre}>
+                    {distrito.nombre}
+                  </option>
+                ))}
+              </select>
+            </Campo>
+
+            <Campo id="nombre" etiqueta="Nombre" error={errores.nombre}>
+              <input
+                id="nombre"
+                className="control"
+                type="text"
+                value={datos.nombre}
+                onChange={(e) => actualizar('nombre', soloLetras(e.target.value))}
+                aria-invalid={errores.nombre ? true : undefined}
+                aria-describedby={errores.nombre ? 'nombre-error' : undefined}
+              />
+            </Campo>
+
+            <Campo id="apellido" etiqueta="Apellido" error={errores.apellido}>
+              <input
+                id="apellido"
+                className="control"
+                type="text"
+                value={datos.apellido}
+                onChange={(e) => actualizar('apellido', soloLetras(e.target.value))}
+                aria-invalid={errores.apellido ? true : undefined}
+                aria-describedby={errores.apellido ? 'apellido-error' : undefined}
+              />
+            </Campo>
+
+            <Campo id="dni" etiqueta="DNI" error={errores.dni}>
+              <input
+                id="dni"
+                className="control"
+                type="text"
+                inputMode="numeric"
+                value={formatearDni(datos.dni)}
+                onChange={(e) => actualizar('dni', soloDigitos(e.target.value, 8))}
+                aria-invalid={errores.dni ? true : undefined}
+                aria-describedby={errores.dni ? 'dni-error' : undefined}
+              />
+            </Campo>
+
+            <Campo
+              id="fechaNacimiento"
+              etiqueta="Fecha de nacimiento"
+              error={errores.fechaNacimiento}
             >
+              <input
+                id="fechaNacimiento"
+                className="control"
+                type="date"
+                value={datos.fechaNacimiento}
+                onChange={(e) => actualizar('fechaNacimiento', e.target.value)}
+                aria-invalid={errores.fechaNacimiento ? true : undefined}
+                aria-describedby={
+                  errores.fechaNacimiento ? 'fechaNacimiento-error' : undefined
+                }
+              />
+            </Campo>
+
+            <Campo id="direccion" etiqueta="Dirección actual" error={errores.direccion} ancho>
+              <input
+                id="direccion"
+                className="control"
+                type="text"
+                value={datos.direccion}
+                onChange={(e) => actualizar('direccion', e.target.value)}
+                aria-invalid={errores.direccion ? true : undefined}
+                aria-describedby={errores.direccion ? 'direccion-error' : undefined}
+              />
+            </Campo>
+
+            <Campo id="telefono" etiqueta="Teléfono" error={errores.telefono}>
+              <input
+                id="telefono"
+                className="control"
+                type="tel"
+                value={formatearTelefono(datos.telefono)}
+                onChange={(e) => actualizar('telefono', soloDigitos(e.target.value, 10))}
+                aria-invalid={errores.telefono ? true : undefined}
+                aria-describedby={errores.telefono ? 'telefono-error' : undefined}
+              />
+            </Campo>
+
+            <Campo id="correo" etiqueta="Correo de contacto" error={errores.correo}>
+              <input
+                id="correo"
+                className="control"
+                type="email"
+                list="dominios-correo"
+                value={datos.correo}
+                onChange={(e) => actualizar('correo', e.target.value)}
+                aria-invalid={errores.correo ? true : undefined}
+                aria-describedby={errores.correo ? 'correo-error' : undefined}
+              />
+              <datalist id="dominios-correo">
+                {sugerenciasCorreo(datos.correo).map((sugerencia) => (
+                  <option key={sugerencia} value={sugerencia} />
+                ))}
+              </datalist>
+            </Campo>
+          </div>
+        </fieldset>
+
+        <fieldset className="formulario__grupo">
+          <legend className="rotulo formulario__leyenda">Antecedentes</legend>
+          <div className="preguntas">
+            <RadioSiNo
+              name="fueAutoridad"
+              legend="¿Fue autoridad de mesa previamente?"
+              value={datos.fueAutoridad}
+              onChange={(valor) => actualizar('fueAutoridad', valor)}
+            />
+            <RadioSiNo
+              name="cumplioCapacitacion"
+              legend="¿Cumplió la capacitación?"
+              value={datos.cumplioCapacitacion}
+              onChange={(valor) => actualizar('cumplioCapacitacion', valor)}
+            />
+            <RadioSiNo
+              name="afiliado"
+              legend="¿Es afiliado a alguna agrupación política?"
+              value={datos.afiliado}
+              onChange={(valor) => actualizar('afiliado', valor)}
+            />
+            {datos.afiliado && (
+              <Campo id="partido" etiqueta="Detallar partido" error={errores.partido}>
+                <input
+                  id="partido"
+                  className="control"
+                  type="text"
+                  value={datos.partido}
+                  onChange={(e) => actualizar('partido', e.target.value)}
+                  aria-invalid={errores.partido ? true : undefined}
+                  aria-describedby={errores.partido ? 'partido-error' : undefined}
+                />
+              </Campo>
+            )}
+          </div>
+        </fieldset>
+
+        <fieldset className="formulario__grupo">
+          <legend className="rotulo formulario__leyenda">Charlas de orientación</legend>
+          <div className="preguntas">
+            <RadioSiNo
+              name="interesaCharlas"
+              legend="¿Tiene interés en participar en charlas de orientación?"
+              value={datos.interesaCharlas}
+              onChange={cambiarInteres}
+            />
+          </div>
+
+          {datos.interesaCharlas && charlas.length > 0 && (
+            <div className="formulario__checks formulario__checks--sangria">
+              {charlas.map((charla) => (
+                <label className="check" key={charla.id}>
+                  <input
+                    type="checkbox"
+                    checked={datos.charlasInteres.includes(charla.id)}
+                    onChange={() => alternarCharla(charla.id)}
+                  />
+                  {charla.tema} — {charla.sede}
+                </label>
+              ))}
+            </div>
+          )}
+        </fieldset>
+
+        <div className="formulario__acciones" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+          <button type="submit" className="boton">
+            Registrar inscripción
+          </button>
+          {onVolver && (
+            <button type="button" style={{ ...botonFantasma, padding: '11px 20px' }} onClick={onVolver}>
+              ← Volver al menú
+            </button>
+          )}
+          {onVolverInicio && (
+            <button type="button" style={{ ...botonFantasma, padding: '11px 20px' }} onClick={onVolverInicio}>
               Volver al inicio
             </button>
           )}
         </div>
       </form>
-    </div>
+    </main>
   );
 }
 

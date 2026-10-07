@@ -7,6 +7,7 @@ import { validarPermisosAdministrador } from './domain/model/menuAdministrador';
 import ConsultaCharlas from "./ui/pages/ConsultarCharlas.jsx";
 import { MapaSedePage } from "./ui/pages/MapaSedePage.jsx";
 import { useTema } from "./ui/hooks/useTema.js";
+import { botonPrimario, botonFantasma } from "./ui/estilos";
 import "./App.css";
 
 function IconoLuna() {
@@ -170,15 +171,7 @@ function mostrarUbicacion(nombreSede) {
       <button
         type="button"
         onClick={() => seleccionarRol("usuario")}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "#28a745",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          fontSize: "16px",
-        }}
+        style={{ ...botonPrimario, padding: "10px 20px", fontSize: "16px" }}
       >
         Ingresar como Postulante
       </button>
@@ -186,15 +179,7 @@ function mostrarUbicacion(nombreSede) {
       <button
         type="button"
         onClick={() => seleccionarRol("admin")}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          fontSize: "16px",
-        }}
+        style={{ ...botonFantasma, padding: "10px 20px", fontSize: "16px" }}
       >
         Ingresar como Administrador
       </button>
@@ -221,7 +206,7 @@ function mostrarUbicacion(nombreSede) {
 )}
 
 {vistaActual === "formularioInscripcion" && (
-  <SolicitudForm onVolver={volverAlMenuPersona} />
+  <SolicitudForm onVolver={volverAlMenuPersona} onVolverInicio={volverAlInicio} />
 )}
 
 {vistaActual === "consultaCharlas" && (
@@ -229,11 +214,7 @@ function mostrarUbicacion(nombreSede) {
     <button
       type="button"
       onClick={volverAlMenuPersona}
-      style={{
-        margin: "20px",
-        padding: "8px 16px",
-        cursor: "pointer",
-      }}
+      style={{ ...botonFantasma, margin: "20px", padding: "8px 16px" }}
     >
       Volver al menú
     </button>

@@ -126,7 +126,7 @@ export function MapaSede({ sede, obtenerUbicacion }) {
             <dd>{sede.nombre}</dd>
           </div>
           <div className="campo">
-            <dt className="rotulo">Dirección normalizada</dt>
+            <dt className="rotulo">Dirección</dt>
             <dd>{ubicacion.direccionNormalizada}</dd>
           </div>
           <div className="campo">
