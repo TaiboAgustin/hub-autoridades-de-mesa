@@ -19,7 +19,7 @@ El proyecto busca facilitar la **convocatoria y registro de ciudadanos que se po
 
 Contiene la **Prueba de Concepto (prototipo funcional)** de la segunda entrega. Desde una pantalla de inicio se elige el perfil de ingreso:
 
-- el **usuario** puede **inscribirse como postulante** (formulario con validación de datos y persistencia) y **consultar las charlas** de capacitación, visualizando la **ubicación de cada sede en el mapa** mediante el consumo en vivo de la **API de USIG**;
+- el **usuario** puede **inscribirse como postulante** (formulario con validación de datos y persistencia) y **consultar las charlas** de capacitación, visualizando **todas las sedes simultáneamente en un mapa interactivo**;
 - el **administrador** accede a un panel que **lista las postulaciones** registradas.
 
 ## Capturas del prototipo
@@ -46,9 +46,9 @@ Recorrido del flujo completo, de punta a punta:
 
 ![Listado de charlas](capturas/05-charlas.png)
 
-### 6. Ubicación de la sede en el mapa (USIG)
+### 6. Mapa con todas las sedes
 
-![Mapa de la sede geocodificada con USIG](capturas/06-mapa.png)
+![Mapa interactivo con todas las sedes](capturas/06-mapa.png)
 
 ### 7. Panel de administrador — listado de postulaciones
 

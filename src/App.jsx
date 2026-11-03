@@ -5,7 +5,7 @@ import SolicitudForm from './ui/pages/SolicitudForm';
 import SolicitudesLista from './ui/pages/SolicitudesLista';
 import { validarPermisosAdministrador } from './domain/model/menuAdministrador';
 import ConsultaCharlas from "./ui/pages/ConsultarCharlas.jsx";
-import { MapaSedePage } from "./ui/pages/MapaSedePage.jsx";
+import { MapaCharlas } from "./ui/components/MapaCharlas.jsx";
 import { useTema } from "./ui/hooks/useTema.js";
 import { botonPrimario, botonFantasma } from "./ui/estilos";
 import "./App.css";
@@ -42,64 +42,36 @@ function IconoSol() {
   );
 }
 
-function App({ obtenerUbicacion, listarSedes }) {
+function App({ obtenerUbicacion, consultarCharlas, registrarPostulacion, listarPostulaciones }) {
   const { tema, alternarTema } = useTema();
   const esOscuro = tema === "oscuro";
-  const [sedeSolicitada, setSedeSolicitada] = useState("");
   const [vistaActual, setVistaActual] = useState("inicio");
 
   function seleccionarRol(rol) {
-  if (rol === "admin") {
-    const administrador = {
-      rol: "admin",
-      nombre: "Administrador",
-    };
-
-    if (validarPermisosAdministrador(administrador)) {
-      setVistaActual("menuAdministrador");
+    if (rol === "admin") {
+      const administrador = { rol: "admin", nombre: "Administrador" };
+      if (validarPermisosAdministrador(administrador)) {
+        setVistaActual("menuAdministrador");
+      }
+    } else {
+      setVistaActual("menuPersona");
     }
-  } else {
-    setVistaActual("menuPersona");
-  }
-}
-
-function seleccionarOpcionPersona(opcionId) {
-  if (opcionId === "inscripcion") {
-    setVistaActual("formularioInscripcion");
   }
 
-  if (opcionId === "charlas") {
-    setVistaActual("consultaCharlas");
+  function seleccionarOpcionPersona(opcionId) {
+    if (opcionId === "inscripcion") setVistaActual("formularioInscripcion");
+    if (opcionId === "charlas") setVistaActual("consultaCharlas");
   }
 
-}
-
-function seleccionarOpcionAdministrador(opcionId) {
-  if (opcionId === "ver_solicitudes") {
-    setVistaActual("listaSolicitudes");
+  function seleccionarOpcionAdministrador(opcionId) {
+    if (opcionId === "ver_solicitudes") setVistaActual("listaSolicitudes");
   }
-}
-function volverAlInicio() {
-  setVistaActual("inicio");
-}
 
-function volverAlMenuPersona() {
-  setVistaActual("menuPersona");
-}
+  function volverAlInicio() { setVistaActual("inicio"); }
+  function volverAlMenuPersona() { setVistaActual("menuPersona"); }
+  function volverAlMenuAdministrador() { setVistaActual("menuAdministrador"); }
 
-function volverAlMenuAdministrador() {
-  setVistaActual("menuAdministrador");
-}
-
-function mostrarUbicacion(nombreSede) {
-  setSedeSolicitada(nombreSede);
-  document
-  .getElementById("seccion-mapa")
-  ?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
-  }
+  const charlas = consultarCharlas();
 
   return (
     <div className="app">
@@ -129,9 +101,7 @@ function mostrarUbicacion(nombreSede) {
             type="button"
             className="tema-toggle"
             onClick={alternarTema}
-            aria-label={
-              esOscuro ? "Activar modo claro" : "Activar modo oscuro"
-            }
+            aria-label={esOscuro ? "Activar modo claro" : "Activar modo oscuro"}
           >
             {esOscuro ? <IconoSol /> : <IconoLuna />}
           </button>
@@ -139,89 +109,68 @@ function mostrarUbicacion(nombreSede) {
       </header>
 
       <div className="encabezado__filete" aria-hidden="true" />
+
       {vistaActual === "inicio" && (
-  <main
-    style={{
-      padding: "20px",
-      textAlign: "center",
-      marginTop: "50px",
-    }}
-  >
-    <h2>Bienvenido</h2>
-
-    <p>Seleccioná con qué perfil deseás ingresar:</p>
-
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        gap: "15px",
-        marginTop: "20px",
-      }}
-    >
-      <button
-        type="button"
-        onClick={() => seleccionarRol("usuario")}
-        style={{ ...botonPrimario, padding: "10px 20px", fontSize: "16px" }}
-      >
-        Ingresar como Postulante
-      </button>
-
-      <button
-        type="button"
-        onClick={() => seleccionarRol("admin")}
-        style={{ ...botonFantasma, padding: "10px 20px", fontSize: "16px" }}
-      >
-        Ingresar como Administrador
-      </button>
-    </div>
-  </main>
-)}
+        <main style={{ padding: "20px", textAlign: "center", marginTop: "50px" }}>
+          <h2>Bienvenido</h2>
+          <p>Seleccioná con qué perfil deseás ingresar:</p>
+          <div style={{ display: "flex", justifyContent: "center", gap: "15px", marginTop: "20px" }}>
+            <button
+              type="button"
+              onClick={() => seleccionarRol("usuario")}
+              style={{ ...botonPrimario, padding: "10px 20px", fontSize: "16px" }}
+            >
+              Ingresar como Postulante
+            </button>
+            <button
+              type="button"
+              onClick={() => seleccionarRol("admin")}
+              style={{ ...botonFantasma, padding: "10px 20px", fontSize: "16px" }}
+            >
+              Ingresar como Administrador
+            </button>
+          </div>
+        </main>
+      )}
 
       {vistaActual === "menuPersona" && (
-  <MenuPersona
-    onSelectOption={seleccionarOpcionPersona}
-    onVolver={volverAlInicio}
-  />
-)}
+        <MenuPersona onSelectOption={seleccionarOpcionPersona} onVolver={volverAlInicio} />
+      )}
 
-{vistaActual === "menuAdministrador" && (
-  <MenuAdministrador
-    onSelectOption={seleccionarOpcionAdministrador}
-    onVolver={volverAlInicio}
-  />
-)}
+      {vistaActual === "menuAdministrador" && (
+        <MenuAdministrador onSelectOption={seleccionarOpcionAdministrador} onVolver={volverAlInicio} />
+      )}
 
-{vistaActual === "listaSolicitudes" && (
-  <SolicitudesLista onVolver={volverAlMenuAdministrador} />
-)}
+      {vistaActual === "listaSolicitudes" && (
+        <SolicitudesLista onVolver={volverAlMenuAdministrador} listarPostulaciones={listarPostulaciones} />
+      )}
 
-{vistaActual === "formularioInscripcion" && (
-  <SolicitudForm onVolver={volverAlMenuPersona} onVolverInicio={volverAlInicio} />
-)}
+      {vistaActual === "formularioInscripcion" && (
+        <SolicitudForm
+          onVolver={volverAlMenuPersona}
+          onVolverInicio={volverAlInicio}
+          consultarCharlas={consultarCharlas}
+          registrarPostulacion={registrarPostulacion}
+        />
+      )}
 
-{vistaActual === "consultaCharlas" && (
-  <>
-    <button
-      type="button"
-      onClick={volverAlMenuPersona}
-      style={{ ...botonFantasma, margin: "20px", padding: "8px 16px" }}
-    >
-      Volver al menú
-    </button>
+      {vistaActual === "consultaCharlas" && (
+        <>
+          <button
+            type="button"
+            onClick={volverAlMenuPersona}
+            style={{ ...botonFantasma, margin: "20px", padding: "8px 16px" }}
+          >
+            Volver al menú
+          </button>
 
-    <ConsultaCharlas alVerUbicacion={mostrarUbicacion} />
+          <ConsultaCharlas charlas={charlas} />
 
-    <MapaSedePage
-      obtenerUbicacion={obtenerUbicacion}
-      listarSedes={listarSedes}
-      sedeSolicitada={sedeSolicitada}
-    />
-  </>
-)}
+          <MapaCharlas charlas={charlas} />
+        </>
+      )}
     </div>
   );
 }
 
 export default App;
-
