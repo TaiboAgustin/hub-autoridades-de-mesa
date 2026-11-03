@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { crearPostulacionesRepo } from '../../infrastructure/adapters/persistence/postulacionesRepo';
 import { formatearDni } from '../utils/formato';
 import { botonFantasma } from '../estilos';
 
-const postulacionesRepo = crearPostulacionesRepo();
-
-export default function SolicitudesLista({ onVolver }) {
+export default function SolicitudesLista({ onVolver, listarPostulaciones }) {
   const [postulaciones, setPostulaciones] = useState([]);
 
   useEffect(() => {
-    setPostulaciones(postulacionesRepo.listar());
-  }, []);
+    setPostulaciones(listarPostulaciones());
+  }, [listarPostulaciones]);
 
   const renderSiNo = (valor) => {
     if (valor === true) return 'Sí';

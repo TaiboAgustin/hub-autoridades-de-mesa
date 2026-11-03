@@ -8,14 +8,9 @@ import {
   formatearTelefono,
   sugerenciasCorreo,
 } from '../utils/formato.js';
-import { consultarCharlas } from '../../application/usecases/consultarCharlas';
 import { DistritoElectoral } from '../../domain/model/distritoElectoral';
-import { crearPostulacionesRepo } from '../../infrastructure/adapters/persistence/postulacionesRepo';
-import { crearRegistrarPostulacion } from '../../application/usecases/registrarPostulacion';
 import { botonFantasma } from '../estilos';
 import '../styles/postulacion.css';
-
-const registrarPostulacion = crearRegistrarPostulacion(crearPostulacionesRepo());
 
 const DATOS_INICIALES = {
   distrito: '',
@@ -46,7 +41,7 @@ const ORDEN_CAMPOS = [
   'partido',
 ];
 
-function InscripcionForm({ onVolver, onVolverInicio }) {
+function InscripcionForm({ onVolver, onVolverInicio, consultarCharlas, registrarPostulacion }) {
   const distritos = DistritoElectoral.obtenerTodos();
   const charlas = consultarCharlas();
   const [datos, setDatos] = useState(DATOS_INICIALES);

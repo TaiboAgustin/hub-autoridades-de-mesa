@@ -17,6 +17,12 @@ export function validarPostulacion(datos) {
   }
   if (vacio(datos.fechaNacimiento)) {
     errores.fechaNacimiento = 'Ingresá tu fecha de nacimiento.'
+  } else {
+    const hoy = new Date()
+    const nac = new Date(datos.fechaNacimiento)
+    const cumplioHoy = hoy >= new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate())
+    const edad = hoy.getFullYear() - nac.getFullYear() - (cumplioHoy ? 0 : 1)
+    if (edad < 18) errores.fechaNacimiento = 'Debés ser mayor de 18 años para postularte.'
   }
   if (vacio(datos.direccion)) errores.direccion = 'Ingresá tu dirección.'
   if (!FORMATO_TELEFONO.test((datos.telefono ?? '').trim())) {

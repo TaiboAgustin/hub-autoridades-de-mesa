@@ -1,8 +1,4 @@
-import { consultarCharlas } from "../../application/usecases/consultarCharlas";
-
-function ConsultaCharlas({ alVerUbicacion })  {
-  const charlas = consultarCharlas();
-
+function ConsultaCharlas({ charlas }) {
   return (
     <main className="consulta-charlas">
       <h1>Charlas disponibles</h1>
@@ -34,9 +30,6 @@ function ConsultaCharlas({ alVerUbicacion })  {
               <p>
                 <strong>Dirección:</strong> {charla.direccion}
               </p>
-
-              <button type="button" onClick={() => alVerUbicacion(charla.sede)}> Ver ubicación </button>
-
             </article>
           ))}
         </section>

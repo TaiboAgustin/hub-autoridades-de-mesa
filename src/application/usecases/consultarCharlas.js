@@ -1,5 +1,5 @@
-import { charlasPrueba } from "../../infrastructure/adapters/persistence/charlasPrueba";
-
-export function consultarCharlas() {
-  return charlasPrueba;
+export function crearConsultarCharlas(charlasRepo) {
+  return function consultarCharlas() {
+    return charlasRepo.listar()
+  }
 }
